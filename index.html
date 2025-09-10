@@ -18,9 +18,14 @@
             align-items: center;
             min-height: 100vh;
             padding: 2rem;
-            cursor: default;
+            /* Default cursor is now visible */
             position: relative;
             z-index: 1;
+            transition: background-color 2s ease-in-out;
+        }
+
+        .stormy-sky {
+            background-color: #1a2a40;
         }
 
         /* Far Mountain Background */
@@ -73,6 +78,84 @@
             100% { transform: translateY(-50vh); opacity: 0; }
         }
 
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            opacity: 0;
+            animation: floatLeft 20s infinite linear;
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes floatLeft {
+            0% { transform: translateX(100vw); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: translateX(-50vw); opacity: 0; }
+        }
+        
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: #87ceeb;
+            opacity: 0;
+            animation: fall 1s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-50px) scaleY(0.5); opacity: 0.8; }
+            100% { transform: translateY(100vh) scaleY(1.5); opacity: 0; }
+        }
+
+        /* Custom Cursor Styles */
+        #custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 25px;
+            height: 25px;
+            background-color: #0d2746;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease-out;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            filter: drop-shadow(0 0 5px rgba(13, 39, 70, 0.8));
+        }
+
+        #cursor-trail {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 15px;
+            height: 15px;
+            background-color: #0d2746;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: transform 0.15s ease-out;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            opacity: 0.8;
+            filter: blur(2px);
+        }
+
+        .pulse-cursor {
+            animation: cursor-pulse 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+        
+        @keyframes cursor-pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
         .icon-container {
             perspective: 1000px;
             display: flex;
@@ -138,18 +221,12 @@
             transform: scale(1.1) rotateX(0deg) rotateY(0deg);
         }
 
-        .pulsing-stars {
-            animation: burst-out 0.8s forwards;
-            background: rgba(30, 144, 255, 0.7);
-        }
-        @keyframes burst-out {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(5); opacity: 0; }
-        }
-
     </style>
 </head>
 <body class="bg-gray-900 text-white flex flex-col items-center justify-center p-8">
+    <div id="custom-cursor"></div>
+    <div id="cursor-trail"></div>
+
     <div class="stars-container"></div>
     <div class="text-center mb-12">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">Our Services</h1>
@@ -283,22 +360,54 @@
             const serviceCards = document.querySelectorAll('.service-card');
             const body = document.body;
             const starsContainer = document.querySelector('.stars-container');
+            const customCursor = document.getElementById('custom-cursor');
+            const cursorTrail = document.getElementById('cursor-trail');
 
-            function createStars(count, x, y) {
-                for (let i = 0; i < count; i++) {
-                    const star = document.createElement('div');
-                    star.className = 'star pulsing-stars';
-                    const size = Math.random() * 4 + 1; // 1 to 5px
-                    star.style.width = `${size}px`;
-                    star.style.height = `${size}px`;
-                    star.style.left = `${x + (Math.random() - 0.5) * 100}px`;
-                    star.style.top = `${y + (Math.random() - 0.5) * 100}px`;
-                    starsContainer.appendChild(star);
-                    setTimeout(() => star.remove(), 1000); // Remove after animation
-                }
+            function createFloatingStars() {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1;
+                const duration = Math.random() * 10 + 15;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.animationDuration = `${duration}s`;
+                starsContainer.appendChild(star);
+                setTimeout(() => star.remove(), duration * 1000);
             }
 
+            function createClouds() {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                const size = Math.random() * 150 + 100; // 100 to 250px
+                const duration = Math.random() * 10 + 20; // 20 to 30s
+                cloud.style.width = `${size}px`;
+                cloud.style.height = `${size * 0.7}px`;
+                cloud.style.left = `${Math.random() * 100}vw`;
+                cloud.style.top = `${Math.random() * 50}vh`;
+                cloud.style.animationDuration = `${duration}s`;
+                starsContainer.appendChild(cloud);
+                setTimeout(() => cloud.remove(), duration * 1000);
+            }
+            
+            function createRaindrops(count, x) {
+                for (let i = 0; i < count; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'raindrop';
+                    drop.style.left = `${x + (Math.random() - 0.5) * 200}px`;
+                    starsContainer.appendChild(drop);
+                    setTimeout(() => drop.remove(), 1000);
+                }
+            }
+            
+            setInterval(createFloatingStars, 500);
+            setInterval(createClouds, 2000);
+
             body.addEventListener('mousemove', (e) => {
+                // Update the custom cursor position
+                customCursor.style.transform = `translate3d(${e.clientX - customCursor.offsetWidth / 2}px, ${e.clientY - customCursor.offsetHeight / 2}px, 0)`;
+                cursorTrail.style.transform = `translate3d(${e.clientX - cursorTrail.offsetWidth / 2}px, ${e.clientY - cursorTrail.offsetHeight / 2}px, 0)`;
+
                 serviceCards.forEach(card => {
                     const icon = card.querySelector('.icon');
                     const rect = card.getBoundingClientRect();
@@ -314,30 +423,28 @@
 
             serviceCards.forEach(card => {
                 card.addEventListener('click', (e) => {
-                    // Pulsing background effect
+                    // Change background to stormy
+                    body.classList.add('stormy-sky');
+                    
+                    // Pulse effect
                     body.classList.add('background-pulse');
                     setTimeout(() => {
                         body.classList.remove('background-pulse');
                     }, 1000);
 
-                    // Star burst animation
-                    createStars(30, e.clientX, e.clientY);
+                    // Trigger rain effect after a slight delay
+                    setTimeout(() => {
+                        createRaindrops(50, e.clientX);
+                    }, 500);
                 });
             });
             
-            function createFloatingStars() {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() * 3 + 1; // 1 to 4px
-                const duration = Math.random() * 10 + 15; // 15 to 25s
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                star.style.left = `${Math.random() * 100}vw`;
-                star.style.animationDuration = `${duration}s`;
-                starsContainer.appendChild(star);
-                setTimeout(() => star.remove(), duration * 1000);
-            }
-            setInterval(createFloatingStars, 500);
+            window.addEventListener('click', () => {
+                customCursor.classList.add('pulse-cursor');
+                setTimeout(() => {
+                    customCursor.classList.remove('pulse-cursor');
+                }, 500);
+            });
         });
     </script>
 </body>
