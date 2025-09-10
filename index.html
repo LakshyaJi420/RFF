@@ -11,14 +11,67 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0b1a2d;
+            background: #0b1a2d;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 2rem;
-            overflow-x: hidden;
+            overflow: hidden;
+            cursor: default;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Far Mountain Background */
+        body::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, #0d2746, #0b1a2d);
+            z-index: -1;
+            clip-path: polygon(0 100%, 10% 85%, 20% 95%, 30% 80%, 40% 90%, 50% 75%, 60% 85%, 70% 70%, 80% 80%, 90% 70%, 100% 85%, 100% 100%);
+            opacity: 0.7;
+        }
+        
+        .background-pulse {
+            animation: pulse-bg 1s forwards;
+        }
+
+        @keyframes pulse-bg {
+            0% { box-shadow: 0 0 0 0 rgba(30, 144, 255, 0.4); }
+            50% { box-shadow: 0 0 150px 75px rgba(30, 144, 255, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(30, 144, 255, 0); }
+        }
+        
+        /* Floating Stars */
+        .stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            background: #add8e6;
+            border-radius: 50%;
+            opacity: 0;
+            animation: floatUp 15s infinite ease-out;
+            box-shadow: 0 0 10px #add8e6;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-50vh); opacity: 0; }
         }
 
         .icon-container {
@@ -33,11 +86,11 @@
             height: 150px;
             position: relative;
             transform-style: preserve-3d;
-            transform: rotateX(-15deg) rotateY(15deg);
-            animation: rotateCube 15s infinite ease-in-out;
+            animation: none !important; /* Disable previous rotateCube animation */
             margin: 2rem;
+            transition: transform 0.2s ease-out;
         }
-
+        
         .face {
             position: absolute;
             width: 100%;
@@ -46,13 +99,14 @@
             justify-content: center;
             align-items: center;
             border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 0 20px rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease-in-out;
-            background-color: rgba(30, 144, 255, 0.7); /* Base sky blue with transparency */
             backdrop-filter: blur(10px);
+            background-color: rgba(30, 144, 255, 0.3);
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
         }
-        
+
         /* Face transformations to create the 3D shape */
         .front { transform: rotateY(0deg) translateZ(75px); }
         .back { transform: rotateY(180deg) translateZ(75px); }
@@ -61,119 +115,43 @@
         .top { transform: rotateX(90deg) translateZ(75px); }
         .bottom { transform: rotateX(-90deg) translateZ(75px); }
 
-        /* Icon-specific styles */
-        .icon-graphic-design .front { background-color: #3b82f6; }
-        .icon-web-dev .front { background-color: #f59e0b; }
-        .icon-google-ads .front { background-color: #ef4444; }
-        .icon-seo .front { background-color: #10b981; }
-        .icon-video-edit .front { background-color: #6366f1; }
-        .icon-smm .front { background-color: #ec4899; }
-
-        /* Inner icon styling */
+        /* Icon-specific colors and inner icon styling */
+        .icon-graphic-design .front { background-color: rgba(59, 130, 246, 0.5); }
+        .icon-web-dev .front { background-color: rgba(245, 158, 11, 0.5); }
+        .icon-google-ads .front { background-color: rgba(239, 68, 68, 0.5); }
+        .icon-seo .front { background-color: rgba(16, 185, 129, 0.5); }
+        .icon-video-edit .front { background-color: rgba(99, 102, 241, 0.5); }
+        .icon-smm .front { background-color: rgba(236, 72, 153, 0.5); }
+        
         .inner-icon {
-            font-size: 4rem;
             color: #fff;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            width: 100px;
+            height: 100px;
         }
 
-        .icon-graphic-design .inner-icon {
-             /* A simple, stylized pen/pencil icon using CSS */
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(45deg, #f59e0b, #eab308);
-            border-radius: 50%;
-            position: relative;
-            transform: rotate(-45deg);
-        }
-        .icon-graphic-design .inner-icon::before {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: #fff;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .service-card {
+            cursor: pointer;
         }
 
-        .icon-web-dev .inner-icon {
-            /* Stylized code brackets */
-            font-size: 6rem;
-            line-height: 1;
-        }
-
-        .icon-google-ads .inner-icon {
-            /* Stylized 'G' for Google */
-            font-size: 5rem;
-            font-weight: 700;
-        }
-
-        .icon-seo .inner-icon {
-            /* Magnifying glass */
-            width: 50px;
-            height: 50px;
-            border: 8px solid white;
-            border-radius: 50%;
-            position: relative;
-        }
-        .icon-seo .inner-icon::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 8px;
-            background: white;
-            bottom: -15px;
-            right: -10px;
-            transform: rotate(45deg);
-        }
-
-        .icon-video-edit .inner-icon {
-            /* Film reel */
-            width: 50px;
-            height: 50px;
-            border: 8px solid white;
-            border-radius: 50%;
-            position: relative;
-        }
-        .icon-video-edit .inner-icon::before,
-        .icon-video-edit .inner-icon::after {
-            content: '';
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background: white;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-150%, -50%);
-        }
-        .icon-video-edit .inner-icon::after {
-            transform: translate(50%, -50%);
-        }
-
-        .icon-smm .inner-icon {
-            /* Generic social media bubble */
-            width: 70px;
-            height: 50px;
-            background-color: white;
-            border-radius: 20px 20px 20px 5px;
-        }
-        
         .service-card:hover .icon {
             animation-play-state: paused;
             transform: scale(1.1) rotateX(0deg) rotateY(0deg);
         }
 
-        @keyframes rotateCube {
-            0% { transform: rotateX(-15deg) rotateY(15deg); }
-            50% { transform: rotateX(15deg) rotateY(-15deg); }
-            100% { transform: rotateX(-15deg) rotateY(15deg); }
+        .pulsing-stars {
+            animation: burst-out 0.8s forwards;
+            background: rgba(30, 144, 255, 0.7);
         }
+        @keyframes burst-out {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(5); opacity: 0; }
+        }
+
     </style>
 </head>
 <body class="bg-gray-900 text-white flex flex-col items-center justify-center p-8">
-
+    <div class="stars-container"></div>
     <div class="text-center mb-12">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">Our Services</h1>
         <p class="text-lg md:text-xl text-gray-400">Vibrant and modern 3D icons for our key offerings.</p>
@@ -181,11 +159,14 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16 w-full max-w-7xl">
         <!-- Graphic Design Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30">
+        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="graphic">
             <div class="icon-container">
                 <div class="icon icon-graphic-design">
                     <div class="face front">
-                        <div class="inner-icon"></div>
+                        <svg class="inner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20l-7 -7l7 -7l7 7l-7 7z" />
+                            <path d="M12 20v-8" />
+                        </svg>
                     </div>
                     <div class="face back"></div>
                     <div class="face right"></div>
@@ -198,11 +179,11 @@
         </div>
 
         <!-- Web Development Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30">
+        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="webdev">
             <div class="icon-container">
                 <div class="icon icon-web-dev">
                     <div class="face front">
-                        <div class="inner-icon">&lt;&gt;</div>
+                        <div class="inner-icon text-7xl">&lt;&gt;</div>
                     </div>
                     <div class="face back"></div>
                     <div class="face right"></div>
@@ -215,11 +196,11 @@
         </div>
 
         <!-- Google Ads Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30">
+        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="ads">
             <div class="icon-container">
                 <div class="icon icon-google-ads">
                     <div class="face front">
-                        <div class="inner-icon">G</div>
+                        <div class="inner-icon text-6xl">G</div>
                     </div>
                     <div class="face back"></div>
                     <div class="face right"></div>
@@ -232,11 +213,16 @@
         </div>
 
         <!-- SEO Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30">
+        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="seo">
             <div class="icon-container">
                 <div class="icon icon-seo">
                     <div class="face front">
-                        <div class="inner-icon"></div>
+                        <div class="inner-icon text-6xl">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </div>
                     </div>
                     <div class="face back"></div>
                     <div class="face right"></div>
@@ -249,11 +235,19 @@
         </div>
 
         <!-- Video Editing Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30">
+        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="video">
             <div class="icon-container">
                 <div class="icon icon-video-edit">
                     <div class="face front">
-                        <div class="inner-icon"></div>
+                         <svg class="inner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="18" rx="2" ry="2"></rect>
+                            <line x1="12" y1="3" x2="12" y2="21"></line>
+                            <line x1="7" y1="3" x2="7" y2="21"></line>
+                            <line x1="17" y1="3" x2="17" y2="21"></line>
+                            <path d="M12 3v18" />
+                            <path d="M7 3v18" />
+                            <path d="M17 3v18" />
+                        </svg>
                     </div>
                     <div class="face back"></div>
                     <div class="face right"></div>
@@ -266,11 +260,13 @@
         </div>
 
         <!-- SMM Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30">
+        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="smm">
             <div class="icon-container">
                 <div class="icon icon-smm">
                     <div class="face front">
-                        <div class="inner-icon"></div>
+                         <svg class="inner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 2h-3a5 5 0 0 0 -5 5v3H7v4h3v8h4v-8h3l1 -4h-4V7a1 1 0 0 1 1 -1h3z"/>
+                        </svg>
                     </div>
                     <div class="face back"></div>
                     <div class="face right"></div>
@@ -282,5 +278,68 @@
             <h2 class="text-2xl font-bold mt-4">Social Media Marketing</h2>
         </div>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const serviceCards = document.querySelectorAll('.service-card');
+            const body = document.body;
+            const starsContainer = document.querySelector('.stars-container');
+
+            function createStars(count, x, y) {
+                for (let i = 0; i < count; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star pulsing-stars';
+                    const size = Math.random() * 4 + 1; // 1 to 5px
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.left = `${x + (Math.random() - 0.5) * 100}px`;
+                    star.style.top = `${y + (Math.random() - 0.5) * 100}px`;
+                    starsContainer.appendChild(star);
+                    setTimeout(() => star.remove(), 1000); // Remove after animation
+                }
+            }
+
+            body.addEventListener('mousemove', (e) => {
+                serviceCards.forEach(card => {
+                    const icon = card.querySelector('.icon');
+                    const rect = card.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+
+                    const moveX = (e.clientY - centerY) * -0.05;
+                    const moveY = (e.clientX - centerX) * 0.05;
+
+                    icon.style.transform = `rotateX(${moveX}deg) rotateY(${moveY}deg)`;
+                });
+            });
+
+            serviceCards.forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Pulsing background effect
+                    body.classList.add('background-pulse');
+                    setTimeout(() => {
+                        body.classList.remove('background-pulse');
+                    }, 1000);
+
+                    // Star burst animation
+                    createStars(30, e.clientX, e.clientY);
+                });
+            });
+            
+            function createFloatingStars() {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1; // 1 to 4px
+                const duration = Math.random() * 10 + 15; // 15 to 25s
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.animationDuration = `${duration}s`;
+                starsContainer.appendChild(star);
+                setTimeout(() => star.remove(), duration * 1000);
+            }
+            setInterval(createFloatingStars, 500);
+        });
+    </script>
 </body>
 </html>
