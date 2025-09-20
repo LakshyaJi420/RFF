@@ -1,451 +1,1542 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Services Icons</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0b1a2d;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-            /* Default cursor is now visible */
-            position: relative;
-            z-index: 1;
-            transition: background-color 2s ease-in-out;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unicorn Graphic Academy</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.cdnfonts.com/css/ica-rubrik-black" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/poppins" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        .stormy-sky {
-            background-color: #1a2a40;
-        }
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        /* Far Mountain Background */
-        body::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background: linear-gradient(to top, #0d2746, #0b1a2d);
-            z-index: -1;
-            clip-path: polygon(0 100%, 10% 85%, 20% 95%, 30% 80%, 40% 90%, 50% 75%, 60% 85%, 70% 70%, 80% 80%, 90% 70%, 100% 85%, 100% 100%);
-            opacity: 0.7;
-        }
-        
-        .background-pulse {
-            animation: pulse-bg 1s forwards;
-        }
+    body {
+      font-family: Poppins, sans-serif;
+      overflow-x: hidden;
+      color: #333;
+      line-height: 1.6;
+      background: #FFFFFF;
+    }
 
-        @keyframes pulse-bg {
-            0% { box-shadow: 0 0 0 0 rgba(30, 144, 255, 0.4); }
-            50% { box-shadow: 0 0 150px 75px rgba(30, 144, 255, 0.8); }
-            100% { box-shadow: 0 0 0 0 rgba(30, 144, 255, 0); }
-        }
-        
-        /* Floating Stars */
-        .stars-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 0;
-        }
-        .star {
-            position: absolute;
-            background: #add8e6;
-            border-radius: 50%;
-            opacity: 0;
-            animation: floatUp 15s infinite ease-out;
-            box-shadow: 0 0 10px #add8e6;
-        }
+    /* ===== Header ===== */
+    header {
+      width: 100%;
+      padding: 15px 40px;
+      background: #87CEEB;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      transition: padding 0.3s ease;
+    }
+    
+    header.scrolled {
+      padding: 10px 40px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    header img {
+      height: 50px;
+    }
+    
+    header h2 {
+      font-style: bold;
+      border: #333;
+      color: #ffffff;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 30px;
+    }
+    
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    
+    nav a:hover {
+      color: #FF6200;
+    }
+    
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
 
-        @keyframes floatUp {
-            0% { transform: translateY(100vh); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-50vh); opacity: 0; }
-        }
+    /* ===== Banner ===== */
+    .banner {
+      width: 100%;
+      height: 100vh;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, #e6f7ff 0%, #b3e0ff 100%);
+    }
 
-        .cloud {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            opacity: 0;
-            animation: floatLeft 20s infinite linear;
-            backdrop-filter: blur(5px);
-        }
+    .banner .slider {
+      position: absolute;
+      width: 200px;
+      height: 250px;
+      top: 10%;
+      left: calc(50% - 100px);
+      transform-style: preserve-3d;
+      transform: perspective(1000px) rotateX(-36deg) rotateY(0deg);
+      animation: autoRun 20s linear infinite;
+      z-index: 2;
+    }
 
-        @keyframes floatLeft {
-            0% { transform: translateX(100vw); opacity: 0; }
-            50% { opacity: 0.6; }
-            100% { transform: translateX(-50vw); opacity: 0; }
-        }
-        
-        .raindrop {
-            position: absolute;
-            width: 2px;
-            height: 15px;
-            background: #87ceeb;
-            opacity: 0;
-            animation: fall 1s forwards;
-            pointer-events: none;
-        }
+    @keyframes autoRun {
+      from {
+        transform: perspective(1000px) rotateX(-16deg) rotateY(0deg);
+      }
+      to {
+        transform: perspective(1000px) rotateX(-16deg) rotateY(360deg);
+      }
+    }
 
-        @keyframes fall {
-            0% { transform: translateY(-50px) scaleY(0.5); opacity: 0.8; }
-            100% { transform: translateY(100vh) scaleY(1.5); opacity: 0; }
-        }
+    .banner .slider .item {
+      position: absolute;
+      inset: 0 0 0 0;
+      transform:
+        rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg))
+        translateZ(550px);
+    }
 
-        /* Custom Cursor Styles */
-        #custom-cursor {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 25px;
-            height: 25px;
-            background-color: #0d2746;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s ease-out;
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            filter: drop-shadow(0 0 5px rgba(13, 39, 70, 0.8));
-        }
+    .banner .slider .item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
 
-        #cursor-trail {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 15px;
-            height: 15px;
-            background-color: #0d2746;
-            pointer-events: none;
-            z-index: 9998;
-            transform: translate(-50%, -50%);
-            transition: transform 0.15s ease-out;
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            opacity: 0.8;
-            filter: blur(2px);
-        }
+    .banner .content {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1400px, 100vw);
+      padding-bottom: 100px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1;
+    }
 
-        .pulse-cursor {
-            animation: cursor-pulse 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-        }
-        
-        @keyframes cursor-pulse {
-            0% {
-                transform: translate(-50%, -50%) scale(1);
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.5);
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(1);
-            }
-        }
-        
-        .icon-container {
-            perspective: 1000px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    .banner .content h1 {
+      font-family: 'ICA Rubrik';
+      font-size: 10em;
+      line-height: 1em;
+      color: #87CEEB;
+      position: relative;
+      text-transform: uppercase;
+    }
 
-        .icon {
-            width: 150px;
-            height: 150px;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: none !important; /* Disable previous rotateCube animation */
-            margin: 2rem;
-            transition: transform 0.2s ease-out;
-        }
-        
-        .face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 0 20px rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease-in-out;
-            backdrop-filter: blur(10px);
-            background-color: rgba(30, 144, 255, 0.3);
-            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-        }
+    .banner .content h1::after {
+      position: absolute;
+      inset: 0 0 0 0;
+      content: attr(data-content);
+      z-index: 2;
+      -webkit-text-stroke: 2px #d2d2d2;
+      color: transparent;
+    }
+    
+    .banner-text {
+      max-width: 500px;
+      text-align: right;
+    }
+    
+    .banner-text p {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: #87CEEB;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      padding: 15px 40px;
+      background: #FF6200;
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(255, 98, 0, 0.4);
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 98, 0, 0.6);
+    }
 
-        /* Face transformations to create the 3D shape */
-        .front { transform: rotateY(0deg) translateZ(75px); }
-        .back { transform: rotateY(180deg) translateZ(75px); }
-        .left { transform: rotateY(-90deg) translateZ(75px); }
-        .right { transform: rotateY(90deg) translateZ(75px); }
-        .top { transform: rotateX(90deg) translateZ(75px); }
-        .bottom { transform: rotateX(-90deg) translateZ(75px); }
+    /* ===== About Section ===== */
+    .about {
+      padding: 100px 40px;
+      background: #FFFFFF;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .section-title h2 {
+      font-family: 'ICA Rubrik';
+      font-size: 3rem;
+      color: #87CEEB;
+      margin-bottom: 20px;
+    }
+    
+    .section-title p {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      color: #666;
+    }
+    
+    .about-content {
+      display: flex;
+      align-items: center;
+      gap: 60px;
+    }
+    
+    .about-text {
+      flex: 1;
+    }
+    
+    .about-text h3 {
+      font-size: 2rem;
+      color: #87CEEB;
+      margin-bottom: 20px;
+    }
+    
+    .about-text p {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+    
+    .about-image {
+      flex: 1;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .about-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
 
-        /* Icon-specific colors and inner icon styling */
-        .icon-graphic-design .front { background-color: rgba(59, 130, 246, 0.5); }
-        .icon-web-dev .front { background-color: rgba(245, 158, 11, 0.5); }
-        .icon-google-ads .front { background-color: rgba(239, 68, 68, 0.5); }
-        .icon-seo .front { background-color: rgba(16, 185, 129, 0.5); }
-        .icon-video-edit .front { background-color: rgba(99, 102, 241, 0.5); }
-        .icon-smm .front { background-color: rgba(236, 72, 153, 0.5); }
-        
-        .inner-icon {
-            color: #fff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            width: 100px;
-            height: 100px;
-        }
+    /* ===== Services Section ===== */
+    .services {
+      padding: 100px 40px;
+      background: linear-gradient(135deg, #e6f7ff 0%, #b3e0ff 100%);
+      position: relative;
+    }
+    
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .service-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 15px 30px rgba(135, 206, 235, 0.1);
+      transition: all 0.4s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, #87CEEB, #FF6200);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    
+    .service-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(135, 206, 235, 0.15);
+    }
+    
+    .service-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .service-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #87CEEB 0%, #5BC0DE 100%);
+      color: white;
+      font-size: 2.5rem;
+      border-radius: 50%;
+      transition: all 0.4s ease;
+      transform-style: preserve-3d;
+      transform: perspective(1000px) rotateY(0deg);
+    }
+    
+    .service-card:hover .service-icon {
+      background: linear-gradient(135deg, #FF6200 0%, #FF8C40 100%);
+      transform: perspective(1000px) rotateY(360deg);
+    }
+    
+    .service-card h3 {
+      font-size: 1.8rem;
+      color: #87CEEB;
+      margin-bottom: 15px;
+    }
+    
+    .service-card p {
+      color: #666;
+      margin-bottom: 20px;
+    }
+    
+    .service-link {
+      display: inline-flex;
+      align-items: center;
+      color: #87CEEB;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    
+    .service-link:hover {
+      color: #FF6200;
+    }
+    
+    /* ===== Service Details Modal ===== */
+    .service-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(135, 206, 235, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+    
+    .service-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      background: #FFFFFF;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+      transform: scale(0.9);
+      transition: transform 0.4s ease, opacity 0.4s ease;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+    }
+    
+    .service-modal.active .modal-content {
+      transform: scale(1);
+      opacity: 1;
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background: #FF6200;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .close-modal:hover {
+      background: #87CEEB;
+      transform: rotate(90deg);
+    }
+    
+    .modal-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .modal-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #87CEEB 0%, #5BC0DE 100%);
+      color: white;
+      font-size: 3rem;
+      border-radius: 50%;
+      box-shadow: 0 15px 30px rgba(135, 206, 235, 0.2);
+    }
+    
+    .modal-header h2 {
+      font-size: 2.5rem;
+      color: #87CEEB;
+      margin-bottom: 10px;
+    }
+    
+    .modal-header p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+    
+    .modal-image {
+      width: 100%;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      animation: appear 0.5s ease-in;
+    }
+    
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .modal-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    
+    .modal-features, .modal-info {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 15px;
+    }
+    
+    .modal-features h3, .modal-info h3 {
+      font-size: 1.5rem;
+      color: #87CEEB;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #FF6200;
+    }
+    
+    .feature-list {
+      list-style: none;
+    }
+    
+    .feature-list li {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .feature-list i {
+      color: #FF6200;
+      font-size: 1.2rem;
+    }
+    
+    .modal-info p {
+      margin-bottom: 15px;
+    }
+    
+    .modal-cta {
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    .modal-cta .cta-button {
+      display: inline-block;
+      padding: 15px 40px;
+      background: #FF6200;
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(255, 98, 0, 0.4);
+    }
+    
+    .modal-cta .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 98, 0, 0.6);
+      background: #87CEEB;
+    }
+    
+    /* ===== Floating Elements ===== */
+    .floating-elements {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    
+    .floating-element {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: float 15s infinite linear;
+    }
+    
+    .floating-element:nth-child(1) {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #87CEEB 0%, #5BC0DE 100%);
+      top: 20%;
+      left: 10%;
+      animation-duration: 20s;
+    }
+    
+    .floating-element:nth-child(2) {
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(135deg, #FF6200 0%, #FF8C40 100%);
+      top: 60%;
+      left: 5%;
+      animation-duration: 25s;
+      animation-delay: 2s;
+    }
+    
+    .floating-element:nth-child(3) {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #87CEEB 0%, #5BC0DE 100%);
+      top: 30%;
+      right: 10%;
+      animation-duration: 18s;
+      animation-delay: 1s;
+    }
+    
+    .floating-element:nth-child(4) {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #FF6200 0%, #FF8C40 100%);
+      top: 70%;
+      right: 8%;
+      animation-duration: 22s;
+      animation-delay: 3s;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      25% {
+        transform: translateY(-20px) rotate(5deg);
+      }
+      50% {
+        transform: translateY(0) rotate(0deg);
+      }
+      75% {
+        transform: translateY(20px) rotate(-5deg);
+      }
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+    }
 
-        .service-card {
-            cursor: pointer;
-        }
+    /* ===== Testimonials Section ===== */
+    .testimonials {
+      padding: 100px 40px;
+      background: #FFFFFF;
+    }
+    
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    
+    .testimonial-card {
+      background: #f8f9fa;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+    
+    .testimonial-text {
+      font-style: italic;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .testimonial-text::before {
+      content: "";
+      font-size: 4rem;
+      color: #FF6200;
+      opacity: 0.2;
+      position: absolute;
+      top: -20px;
+      left: -10px;
+      font-family: serif;
+    }
+    
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .author-image {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    
+    .author-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .author-details h4 {
+      color: #87CEEB;
+      margin-bottom: 5px;
+    }
+    
+    .author-details p {
+      color: #666;
+      font-size: 0.9rem;
+    }
 
-        .service-card:hover .icon {
-            animation-play-state: paused;
-            transform: scale(1.1) rotateX(0deg) rotateY(0deg);
-        }
+    /* ===== Contact Section ===== */
+    .contact {
+      padding: 100px 40px;
+      background: #f8f9fa;
+    }
+    
+    .contact-container {
+      display: flex;
+      gap: 60px;
+    }
+    
+    .contact-info {
+      flex: 1;
+    }
+    
+    .contact-info h3 {
+      font-size: 2rem;
+      color: #87CEEB;
+      margin-bottom: 30px;
+    }
+    
+    .contact-details {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .contact-icon {
+      width: 50px;
+      height: 50px;
+      background: #FF6200;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+    
+    .contact-text h4 {
+      color: #87CEEB;
+      margin-bottom: 5px;
+    }
+    
+    .contact-text p {
+      color: #666;
+    }
+    
+    .contact-form {
+      flex: 1;
+      background: #FFFFFF;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    .contact-form h3 {
+      font-size: 2rem;
+      color: #87CEEB;
+      margin-bottom: 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #87CEEB;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    
+    .submit-btn {
+      padding: 15px 40px;
+      background: #87CEEB;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+      background: #FF6200;
+    }
 
-    </style>
+    /* ===== Footer ===== */
+    footer {
+      width: 100%;
+      padding: 60px 40px 30px;
+      background: #87CEEB;
+      color: #fff;
+    }
+    
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+    }
+    
+    .footer-col h3 {
+      font-size: 1.5rem;
+      margin-bottom: 25px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    .footer-col h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background: #FF6200;
+    }
+    
+    .footer-col p {
+      margin-bottom: 20px;
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 12px;
+    }
+    
+    .footer-links a {
+      color: #ddd;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    
+    .footer-links a:hover {
+      color: #FF6200;
+      padding-left: 5px;
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .social-links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: white;
+      transition: all 0.3s ease;
+    }
+    
+    .social-links a:hover {
+      background: #FF6200;
+      transform: translateY(-3px);
+    }
+    
+    .copyright {
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ===== Responsive Design ===== */
+    @media (max-width: 992px) {
+      .banner .content h1 {
+        font-size: 8em;
+      }
+      
+      .about-content, .contact-container {
+        flex-direction: column;
+      }
+      
+      .modal-body {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 20px;
+      }
+      
+      nav ul {
+        display: none;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .banner .content {
+        flex-direction: column;
+        text-align: center;
+        padding-bottom: 60px;
+      }
+      
+      .banner .content h1 {
+        font-size: 5em;
+        margin-bottom: 30px;
+      }
+      
+      .banner-text {
+        text-align: center;
+      }
+      
+      .about, .services, .testimonials, .contact {
+        padding: 60px 20px;
+      }
+      
+      .section-title h2 {
+        font-size: 2.5rem;
+      }
+      
+      .service-card {
+        padding: 25px;
+      }
+      
+      .service-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+      }
+      
+      .service-card h3 {
+        font-size: 1.5rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .banner .content h1 {
+        font-size: 3.5em;
+      }
+      
+      .logo-container h2 {
+        font-size: 1.2rem;
+      }
+      
+      .section-title h2 {
+        font-size: 2rem;
+      }
+      
+      .modal-content {
+        padding: 30px 20px;
+      }
+      
+      .modal-icon {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+      }
+      
+      .modal-header h2 {
+        font-size: 2rem;
+      }
+      
+      .floating-element {
+        display: none;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white flex flex-col items-center justify-center p-8">
-    <div id="custom-cursor"></div>
-    <div id="cursor-trail"></div>
+<body>
 
-    <div class="stars-container"></div>
-    <div class="text-center mb-12">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Our Services</h1>
-        <p class="text-lg md:text-xl text-gray-400">Vibrant and modern 3D icons for our key offerings.</p>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16 w-full max-w-7xl">
-        <!-- Graphic Design Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="graphic">
-            <div class="icon-container">
-                <div class="icon icon-graphic-design">
-                    <div class="face front">
-                        <svg class="inner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 20l-7 -7l7 -7l7 7l-7 7z" />
-                            <path d="M12 20v-8" />
-                        </svg>
-                    </div>
-                    <div class="face back"></div>
-                    <div class="face right"></div>
-                    <div class="face left"></div>
-                    <div class="face top"></div>
-                    <div class="face bottom"></div>
-                </div>
-            </div>
-            <h2 class="text-2xl font-bold mt-4">Graphic Design</h2>
-        </div>
-
-        <!-- Web Development Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="webdev">
-            <div class="icon-container">
-                <div class="icon icon-web-dev">
-                    <div class="face front">
-                        <div class="inner-icon text-7xl">&lt;&gt;</div>
-                    </div>
-                    <div class="face back"></div>
-                    <div class="face right"></div>
-                    <div class="face left"></div>
-                    <div class="face top"></div>
-                    <div class="face bottom"></div>
-                </div>
-            </div>
-            <h2 class="text-2xl font-bold mt-4">Web Development</h2>
-        </div>
-
-        <!-- Google Ads Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="ads">
-            <div class="icon-container">
-                <div class="icon icon-google-ads">
-                    <div class="face front">
-                        <div class="inner-icon text-6xl">G</div>
-                    </div>
-                    <div class="face back"></div>
-                    <div class="face right"></div>
-                    <div class="face left"></div>
-                    <div class="face top"></div>
-                    <div class="face bottom"></div>
-                </div>
-            </div>
-            <h2 class="text-2xl font-bold mt-4">Google Ads</h2>
-        </div>
-
-        <!-- SEO Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="seo">
-            <div class="icon-container">
-                <div class="icon icon-seo">
-                    <div class="face front">
-                        <div class="inner-icon text-6xl">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="face back"></div>
-                    <div class="face right"></div>
-                    <div class="face left"></div>
-                    <div class="face top"></div>
-                    <div class="face bottom"></div>
-                </div>
-            </div>
-            <h2 class="text-2xl font-bold mt-4">SEO</h2>
-        </div>
-
-        <!-- Video Editing Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="video">
-            <div class="icon-container">
-                <div class="icon icon-video-edit">
-                    <div class="face front">
-                         <svg class="inner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="3" width="20" height="18" rx="2" ry="2"></rect>
-                            <line x1="12" y1="3" x2="12" y2="21"></line>
-                            <line x1="7" y1="3" x2="7" y2="21"></line>
-                            <line x1="17" y1="3" x2="17" y2="21"></line>
-                            <path d="M12 3v18" />
-                            <path d="M7 3v18" />
-                            <path d="M17 3v18" />
-                        </svg>
-                    </div>
-                    <div class="face back"></div>
-                    <div class="face right"></div>
-                    <div class="face left"></div>
-                    <div class="face top"></div>
-                    <div class="face bottom"></div>
-                </div>
-            </div>
-            <h2 class="text-2xl font-bold mt-4">Video Editing</h2>
-        </div>
-
-        <!-- SMM Icon -->
-        <div class="service-card flex flex-col items-center text-center p-6 bg-gray-800 rounded-3xl shadow-2xl backdrop-blur-sm bg-opacity-30" data-icon="smm">
-            <div class="icon-container">
-                <div class="icon icon-smm">
-                    <div class="face front">
-                         <svg class="inner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 2h-3a5 5 0 0 0 -5 5v3H7v4h3v8h4v-8h3l1 -4h-4V7a1 1 0 0 1 1 -1h3z"/>
-                        </svg>
-                    </div>
-                    <div class="face back"></div>
-                    <div class="face right"></div>
-                    <div class="face left"></div>
-                    <div class="face top"></div>
-                    <div class="face bottom"></div>
-                </div>
-            </div>
-            <h2 class="text-2xl font-bold mt-4">Social Media Marketing</h2>
-        </div>
+  <!-- Header -->
+  <header id="header">
+    <div class="logo-container">
+      <img src="pics/logo.png" alt="Unicorn Graphic Academy Logo">
+      <h2>Unicorn Graphic Academy</h2>
     </div>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const serviceCards = document.querySelectorAll('.service-card');
-            const body = document.body;
-            const starsContainer = document.querySelector('.stars-container');
-            const customCursor = document.getElementById('custom-cursor');
-            const cursorTrail = document.getElementById('cursor-trail');
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="mobile-menu-btn">
+        <i class="fas fa-bars"></i>
+      </button>
+    </nav>
+  </header>
 
-            function createFloatingStars() {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() * 3 + 1;
-                const duration = Math.random() * 10 + 15;
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                star.style.left = `${Math.random() * 100}vw`;
-                star.style.animationDuration = `${duration}s`;
-                starsContainer.appendChild(star);
-                setTimeout(() => star.remove(), duration * 1000);
-            }
+  <!-- Banner -->
+  <section class="banner" id="home">
+    <div class="slider" id="slider">
+      <div class="item" style="--position:1; --quantity:6;"><img src="https://placehold.co/300x400/87CEEB/FFFFFF?text=Design" alt="Design"></div>
+      <div class="item" style="--position:2; --quantity:6;"><img src="https://placehold.co/300x400/FF6200/FFFFFF?text=Creative" alt="Creative"></div>
+      <div class="item" style="--position:3; --quantity:6;"><img src="https://placehold.co/300x400/87CEEB/FFFFFF?text=Art" alt="Art"></div>
+      <div class="item" style="--position:4; --quantity:6;"><img src="https://placehold.co/300x400/FF6200/FFFFFF?text=Graphics" alt="Graphics"></div>
+      <div class="item" style="--position:5; --quantity:6;"><img src="https://placehold.co/300x400/87CEEB/FFFFFF?text=UX/UI" alt="UX/UI"></div>
+      <div class="item" style="--position:6; --quantity:6;"><img src="https://placehold.co/300x400/FF6200/FFFFFF?text=Branding" alt="Branding"></div>
+    </div>
 
-            function createClouds() {
-                const cloud = document.createElement('div');
-                cloud.className = 'cloud';
-                const size = Math.random() * 150 + 100; // 100 to 250px
-                const duration = Math.random() * 10 + 20; // 20 to 30s
-                cloud.style.width = `${size}px`;
-                cloud.style.height = `${size * 0.7}px`;
-                cloud.style.left = `${Math.random() * 100}vw`;
-                cloud.style.top = `${Math.random() * 50}vh`;
-                cloud.style.animationDuration = `${duration}s`;
-                starsContainer.appendChild(cloud);
-                setTimeout(() => cloud.remove(), duration * 1000);
-            }
+    <div class="content">
+      <h1 data-content="Unicorn">Unicorn</h1>
+      <div class="banner-text">
+        <p>Unlock your creative potential with our industry-leading graphic design services</p>
+        <a href="#services" class="cta-button">Explore Services</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="section-title">
+        <h2>About Our Academy</h2>
+        <p>Learn from industry professionals and take your design skills to the next level</p>
+      </div>
+      
+      <div class="about-content">
+        <div class="about-text">
+          <h3>We Shape the Designers of Tomorrow</h3>
+          <p>Unicorn Graphic Academy was founded with a simple mission: to provide aspiring designers with the skills, knowledge, and confidence needed to succeed in the competitive creative industry.</p>
+          <p>Our unique approach combines theoretical knowledge with practical, hands-on experience. We believe in learning by doing, which is why our students work on real-world projects from day one.</p>
+          <p>With state-of-the-art facilities, industry-standard software, and a curriculum designed by professionals, we offer an educational experience that prepares you for the challenges of the modern design world.</p>
+          <a href="#contact" class="cta-button">Get In Touch</a>
+        </div>
+        
+        <div class="about-image">
+          <img src="pics/logo_right.png" alt="Unicorn Graphic Academy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="services" id="services">
+    <div class="floating-elements">
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+    </div>
+    
+    <div class="container">
+      <div class="section-title">
+        <h2>Our Services</h2>
+        <p>Discover the comprehensive range of creative services we offer to boost your brand</p>
+      </div>
+      
+      <div class="services-grid">
+        <div class="service-card" data-service="graphic-design">
+          <div class="service-icon">
+            <i class="fas fa-paint-brush"></i>
+          </div>
+          <h3>Graphic Designing</h3>
+          <p>Creative visual solutions for branding, marketing materials, and digital assets.</p>
+          <a href="#" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="service-card" data-service="web-design">
+          <div class="service-icon">
+            <i class="fas fa-laptop-code"></i>
+          </div>
+          <h3>Web Designing</h3>
+          <p>Responsive and user-friendly websites that convert visitors into customers.</p>
+          <a href="#" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="service-card" data-service="google-ads">
+          <div class="service-icon">
+            <i class="fas fa-ad"></i>
+          </div>
+          <h3>Google Ads</h3>
+          <p>Strategic advertising campaigns to maximize your ROI and reach potential customers.</p>
+          <a href="#" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="service-card" data-service="seo">
+          <div class="service-icon">
+            <i class="fas fa-search"></i>
+          </div>
+          <h3>SEO</h3>
+          <p>Optimize your online presence and rank higher in search engine results.</p>
+          <a href="#" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="service-card" data-service="video-editing">
+          <div class="service-icon">
+            <i class="fas fa-video"></i>
+          </div>
+          <h3>Video Editing</h3>
+          <p>Professional video production and editing services for engaging content.</p>
+          <a href="#" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="service-card" data-service="smm">
+          <div class="service-icon">
+            <i class="fas fa-hashtag"></i>
+          </div>
+          <h3>SMM</h3>
+          <p>Social media management and marketing strategies to grow your audience.</p>
+          <a href="#" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Service Details Modal -->
+  <div class="service-modal" id="service-modal">
+    <div class="modal-content">
+      <button class="close-modal" id="close-modal">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <i class="fas fa-paint-brush" id="modal-service-icon"></i>
+        </div>
+        <h2 id="modal-service-title">Graphic Designing</h2>
+        <p id="modal-service-description">Creative visual solutions for branding and marketing materials.</p>
+      </div>
+      <img id="modal-service-image" src="" alt="" class="modal-image">
+      
+      <div class="modal-body">
+        <div class="modal-features">
+          <h3>What We Offer</h3>
+          <ul class="feature-list" id="modal-service-features">
+            <li><i class="fas fa-check"></i> Logo Design & Branding</li>
+            <li><i class="fas fa-check"></i> Marketing Materials</li>
+            <li><i class="fas fa-check"></i> Social Media Graphics</li>
+            <li><i class="fas fa-check"></i> Print Design</li>
+            <li><i class="fas fa-check"></i> Packaging Design</li>
+          </ul>
+        </div>
+        
+        <div class="modal-info">
+          <h3>Why Choose Us</h3>
+          <p>Our team of experienced designers creates visually stunning graphics that communicate your brand's message effectively.</p>
+          <p>We focus on creating designs that not only look great but also drive results and engage your target audience.</p>
+          <p>With quick turnaround times and unlimited revisions, we ensure your complete satisfaction with the final product.</p>
+        </div>
+      </div>
+      
+      <div class="modal-cta">
+        <a href="#contact" class="cta-button">Get This Service</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-title">
+        <h2>Testimonials</h2>
+        <p>Hear what our clients have to say about their experience with Unicorn Graphic Academy</p>
+      </div>
+      
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-text">
+            <p>The UX/UI design service completely transformed my website. The team delivered high-quality work in just two weeks!</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-image">
+              <img src="https://placehold.co/50x50/87CEEB/FFFFFF?text=S" alt="Sarah Johnson">
+            </div>
+            <div class="author-details">
+              <h4>Sarah Johnson</h4>
+              <p>Satisfied Client</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="testimonial-card">
+          <div class="testimonial-text">
+            <p>As a complete beginner, I was nervous about starting, but the team was incredibly supportive. Now my brand has professional graphics!</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-image">
+              <img src="https://placehold.co/50x50/FF6200/FFFFFF?text=M" alt="Michael Chen">
+            </div>
+            <div class="author-details">
+              <h4>Michael Chen</h4>
+              <p>Business Owner</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="testimonial-card">
+          <div class="testimonial-text">
+            <p>The branding service gave me the confidence to launch my company. The practical approach was exactly what I needed for my visual identity.</p>
+          </div>
+          <div class="testimonial-author">
+            <div class="author-image">
+              <img src="https://placehold.co/50x50/87CEEB/FFFFFF?text=A" alt="Alex Rodriguez">
+            </div>
+            <div class="author-details">
+              <h4>Alex Rodriguez</h4>
+              <p>Entrepreneur</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="section-title">
+        <h2>Contact Us</h2>
+        <p>Have questions? Get in touch with our team today</p>
+      </div>
+      
+      <div class="contact-container">
+        <div class="contact-info">
+          <h3>Get In Touch</h3>
+          
+          <div class="contact-details">
+            <div class="contact-item">
+              <div class="contact-icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <div class="contact-text">
+                <h4>Location</h4>
+                <p>Ganaur, Sonipat, Haryana 131101</p>
+              </div>
+            </div>
             
-            function createRaindrops(count, x) {
-                for (let i = 0; i < count; i++) {
-                    const drop = document.createElement('div');
-                    drop.className = 'raindrop';
-                    drop.style.left = `${x + (Math.random() - 0.5) * 200}px`;
-                    starsContainer.appendChild(drop);
-                    setTimeout(() => drop.remove(), 1000);
-                }
-            }
+            <div class="contact-item">
+              <div class="contact-icon">
+                <i class="fas fa-phone"></i>
+              </div>
+              <div class="contact-text">
+                <h4>Phone</h4>
+                <p>+91 93066 27978</p>
+              </div>
+            </div>
             
-            setInterval(createFloatingStars, 500);
-            setInterval(createClouds, 2000);
-
-            body.addEventListener('mousemove', (e) => {
-                // Update the custom cursor position
-                customCursor.style.transform = `translate3d(${e.clientX - customCursor.offsetWidth / 2}px, ${e.clientY - customCursor.offsetHeight / 2}px, 0)`;
-                cursorTrail.style.transform = `translate3d(${e.clientX - cursorTrail.offsetWidth / 2}px, ${e.clientY - cursorTrail.offsetHeight / 2}px, 0)`;
-
-                serviceCards.forEach(card => {
-                    const icon = card.querySelector('.icon');
-                    const rect = card.getBoundingClientRect();
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
-
-                    const moveX = (e.clientY - centerY) * -0.05;
-                    const moveY = (e.clientX - centerX) * 0.05;
-
-                    icon.style.transform = `rotateX(${moveX}deg) rotateY(${moveY}deg)`;
-                });
-            });
-
-            serviceCards.forEach(card => {
-                card.addEventListener('click', (e) => {
-                    // Change background to stormy
-                    body.classList.add('stormy-sky');
-                    
-                    // Pulse effect
-                    body.classList.add('background-pulse');
-                    setTimeout(() => {
-                        body.classList.remove('background-pulse');
-                    }, 1000);
-
-                    // Trigger rain effect after a slight delay
-                    setTimeout(() => {
-                        createRaindrops(50, e.clientX);
-                    }, 500);
-                });
-            });
+            <div class="contact-item">
+              <div class="contact-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="contact-text">
+                <h4>Email</h4>
+                <p>unicornagency1431@gmail.com</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="contact-form">
+          <h3>Send a Message</h3>
+          
+          <form>
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" placeholder="Your Name" required>
+            </div>
             
-            window.addEventListener('click', () => {
-                customCursor.classList.add('pulse-cursor');
-                setTimeout(() => {
-                    customCursor.classList.remove('pulse-cursor');
-                }, 500);
-            });
-        });
-    </script>
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" placeholder="Your Email" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="message">Your Message</label>
+              <textarea id="message" placeholder="How can we help you?" required></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3>Unicorn Graphic Academy</h3>
+        <p>Providing top-notch graphic design services to boost your brand.</p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <ul class="footer-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#testimonials">Testimonials</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-col">
+        <h3>Contact Info</h3>
+        <ul class="footer-links">
+          <li><i class="fas fa-map-marker-alt"></i> Ganaur, Sonipat, Haryana 131101</li>
+          <li><i class="fas fa-phone"></i> +91 93066 27978</li>
+          <li><i class="fas fa-envelope"></i> unicornagency1431@gmail.com</li>
+          <li><i class="fas fa-clock"></i> Mon-Fri: 9AM - 5PM</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="copyright">
+      <p>Digital Marketing | Developed by Lakshya Tyagi</p>
+    </div>
+  </footer>
+
+  <!-- JS for Scroll Effect -->
+  <script>
+    // Service data
+    const servicesData = {
+      "graphic-design": {
+        title: "Graphic Designing",
+        description: "Creative visual solutions for branding, marketing materials, and digital assets.",
+        icon: "fas fa-paint-brush",
+        image: "https://placehold.co/800x400/87CEEB/FFFFFF?text=Graphic+Designing",
+        features: [
+          "Logo Design & Branding",
+          "Marketing Materials",
+          "Social Media Graphics",
+          "Print Design",
+          "Packaging Design"
+        ]
+      },
+      "web-design": {
+        title: "Web Designing",
+        description: "Responsive and user-friendly websites that convert visitors into customers.",
+        icon: "fas fa-laptop-code",
+        image: "https://placehold.co/800x400/FF6200/FFFFFF?text=Web+Designing",
+        features: [
+          "Responsive Website Design",
+          "UI/UX Design",
+          "E-commerce Solutions",
+          "Website Redesign",
+          "Landing Pages"
+        ]
+      },
+      "google-ads": {
+        title: "Google Ads",
+        description: "Strategic advertising campaigns to maximize your ROI and reach potential customers.",
+        icon: "fas fa-ad",
+        image: "https://placehold.co/800x400/87CEEB/FFFFFF?text=Google+Ads",
+        features: [
+          "Search Advertising",
+          "Display Network Ads",
+          "Video Campaigns",
+          "Shopping Ads",
+          "Performance Tracking"
+        ]
+      },
+      "seo": {
+        title: "SEO",
+        description: "Optimize your online presence and rank higher in search engine results.",
+        icon: "fas fa-search",
+        image: "https://placehold.co/800x400/FF6200/FFFFFF?text=SEO",
+        features: [
+          "Keyword Research",
+          "On-Page Optimization",
+          "Technical SEO",
+          "Content Strategy",
+          "Performance Reporting"
+        ]
+      },
+      "video-editing": {
+        title: "Video Editing",
+        description: "Professional video production and editing services for engaging content.",
+        icon: "fas fa-video",
+        image: "https://placehold.co/800x400/87CEEB/FFFFFF?text=Video+Editing",
+        features: [
+          "Commercial Videos",
+          "Social Media Content",
+          "Product Demos",
+          "Testimonial Videos",
+          "Motion Graphics"
+        ]
+      },
+      "smm": {
+        title: "SMM",
+        description: "Social media management and marketing strategies to grow your audience.",
+        icon: "fas fa-hashtag",
+        image: "https://placehold.co/800x400/FF6200/FFFFFF?text=SMM",
+        features: [
+          "Content Strategy",
+          "Community Management",
+          "Paid Social Advertising",
+          "Influencer Partnerships",
+          "Analytics & Reporting"
+        ]
+      }
+    };
+
+    // DOM elements
+    const slider = document.getElementById("slider");
+    const header = document.getElementById("header");
+    const serviceCards = document.querySelectorAll('.service-card');
+    const serviceModal = document.getElementById('service-modal');
+    const closeModal = document.getElementById('close-modal');
+    const modalServiceIcon = document.getElementById('modal-service-icon');
+    const modalServiceTitle = document.getElementById('modal-service-title');
+    const modalServiceDescription = document.getElementById('modal-service-description');
+    const modalServiceFeatures = document.getElementById('modal-service-features');
+    const modalServiceImage = document.getElementById('modal-service-image');
+    const startAngle = -36; // top position
+    const endAngle = 16;   // bottom position
+
+    // Scroll effect for 3D slider
+    window.addEventListener("scroll", () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.body.scrollHeight - window.innerHeight;
+      const scrollPercent = scrollTop / docHeight;
+
+      // Map scroll percent to angle
+      const angle = startAngle + (endAngle - startAngle) * scrollPercent;
+
+      slider.style.transform = `perspective(1000px) rotateX(${angle}deg) rotateY(0deg)`;
+      
+      // Header background on scroll
+      if (scrollTop > 50) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    });
+    
+    // Open modal with service details
+    serviceCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const serviceId = card.getAttribute('data-service');
+        const service = servicesData[serviceId];
+        
+        if (service) {
+          // Update modal content
+          modalServiceIcon.className = service.icon;
+          modalServiceTitle.textContent = service.title;
+          modalServiceDescription.textContent = service.description;
+          modalServiceImage.src = service.image;
+          modalServiceImage.alt = service.title + " Image";
+          
+          // Clear existing features
+          modalServiceFeatures.innerHTML = '';
+          
+          // Add new features
+          service.features.forEach(feature => {
+            const li = document.createElement('li');
+            li.innerHTML = `<i class="fas fa-check"></i> ${feature}`;
+            modalServiceFeatures.appendChild(li);
+          });
+          
+          // Show modal
+          serviceModal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    });
+
+    // Close modal
+    closeModal.addEventListener('click', () => {
+      serviceModal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    });
+
+    // Close modal when clicking outside
+    serviceModal.addEventListener('click', (e) => {
+      if (e.target === serviceModal) {
+        serviceModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const navMenu = document.querySelector('nav ul');
+    
+    mobileMenuBtn.addEventListener('click', () => {
+      navMenu.style.display = navMenu.style.display === 'flex' ? 'none' : 'flex';
+    });
+  </script>
 </body>
 </html>
